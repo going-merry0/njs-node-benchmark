@@ -169,7 +169,7 @@ Transfer/sec:     11.36MB
 - nginx 基建 + js-with-jit 可以做到和 openresty 一样的性能，按 [这里](https://medium.com/swlh/a-real-world-comparison-of-web-frameworks-with-a-focus-on-nodejs-c00efe1df7ca) 的测试 2倍 于 node
 - 上述的组合于 openresty 重合的工作很多，但是实质的差别仅仅是使用一个带 jit 的 js vm 替换 openresty 架构中的 lua vm，从结果来看和直接做一个 js -> lua 的编译器取得的效果差不多
 
-## 深入源码对比
+## 未来深入源码对比
 
 目前了解的 nginx 知识来看，nginx 的高性能得益于它的进程模型，以及对内存的节约使用。而它基于事件的进程模型实际上和 node 很相似，而且 node 中的 [http-parser](https://github.com/nodejs/http-parser) 的实现几乎和 nginx 中的一致，这就说明在 node 中也是有意识的在底层（c++）控制内存的使用
 
