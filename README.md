@@ -100,6 +100,9 @@ Requests/sec:  39896.92
 Transfer/sec:      5.78MB
 ```
 
+- hello-world 例子因为完全没有业务逻辑，可以看出 nginx 在请求处理上的性能是优于 node 
+- node 中把很多在 `nginx + njs` 组合中由 nginx 实现的部分移到了 js 中，比如路由处理，因此开启 JIT 后两者的差距缩小很多，但是依然落后于 nginx
+
 ## ssr
 
 **nginx-worker-1**
@@ -161,3 +164,13 @@ Running 30s test @ http://localhost:3000/
 Requests/sec:   3182.21
 Transfer/sec:     11.36MB
 ```
+
+- 对比 `nginx-worker-1` 和 `nginx-worker-8` 当计算能力成为瓶颈的时候，多进程的优势体现出来
+- nginx 基建 + js-with-jit 可以做到和 openresty 一样的性能，按 [这里](https://medium.com/swlh/a-real-world-comparison-of-web-frameworks-with-a-focus-on-nodejs-c00efe1df7ca) 的测试 2倍 于 node
+- 上述的组合于 openresty 重合的工作很多，但是实质的差别仅仅是使用一个带 jit 的 js vm 替换 openresty 架构中的 lua vm，从结果来看和直接做一个 js -> lua 的编译器取得的效果差不多
+
+## 深入源码对比
+
+目前了解的 nginx 知识来看，nginx 的高性能得益于它的进程模型，以及对内存的节约使用。而它基于事件的进程模型实际上和 node 很相似，而且 node 中的 [http-parser](https://github.com/nodejs/http-parser) 的实现几乎和 nginx 中的一致，这就说明在 node 中也是有意识的在底层（c++）控制内存的使用
+
+所以需要继续从实现上研究为什么 `hello world#nginx-worker-1` 和 `hello world#node-jit` 之间有相当大的差距，既然目前确定 nginx + js 的方案因为和 openresty 无二所以没有轮子的必要，那么从目前 node 的层面，能不能、怎样才能至少在 hello-world 层面缩短其与 nginx 之前的差距
