@@ -24,12 +24,14 @@ node --jitless ./src/server.js
 wrk -t6 -c400 -d30s http://localhost:8000/
 ```
 
+因为 [njs](https://github.com/nginx/njs) 没有 JIT，所以 node 也关闭 JIT 来测试
+
 ## hello world
 
-nginx
+**nginx-worker-1**
 
 ```
-➜  servers wrk -t6 -c400 -d30s http://localhost:8000/
+➜  wrk -t6 -c400 -d30s http://localhost:8000/
 Running 30s test @ http://localhost:8000/
   6 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -41,10 +43,25 @@ Requests/sec:  54990.91
 Transfer/sec:      8.34MB
 ```
 
-node
+**nginx-worker-8**
 
 ```
-➜  servers wrk -t6 -c400 -d30s http://localhost:3000/
+➜  nginx wrk -t6 -c400 -d30s http://localhost:8000/
+Running 30s test @ http://localhost:8000/
+  6 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    13.34ms   70.96ms 889.68ms   96.88%
+    Req/Sec    12.50k     3.70k   24.25k    79.13%
+  1655900 requests in 30.10s, 251.01MB read
+  Socket errors: connect 150, read 0, write 0, timeout 0
+Requests/sec:  55007.44
+Transfer/sec:      8.34MB
+```
+
+**node-without-jit**
+
+```
+➜  wrk -t6 -c400 -d30s http://localhost:3000/
 Running 30s test @ http://localhost:3000/
   6 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -56,12 +73,27 @@ Requests/sec:   6922.87
 Transfer/sec:      1.00MB
 ```
 
-## ssr
-
-nginx-worker-1
+**node-jit**
 
 ```
-➜  servers wrk -t6 -c400 -d30s http://localhost:8000/
+➜  wrk -t6 -c400 -d30s http://localhost:3000/
+Running 30s test @ http://localhost:3000/
+  6 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     6.01ms    0.86ms  39.24ms   87.93%
+    Req/Sec     6.68k     0.98k    8.65k    71.71%
+  1201025 requests in 30.10s, 174.10MB read
+  Socket errors: connect 150, read 202, write 0, timeout 0
+Requests/sec:  39896.92
+Transfer/sec:      5.78MB
+```
+
+## ssr
+
+**nginx-worker-1**
+
+```
+➜  wrk -t6 -c400 -d30s http://localhost:8000/
 Running 30s test @ http://localhost:8000/
   6 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -73,10 +105,10 @@ Requests/sec:    224.84
 Transfer/sec:    826.67KB
 ```
 
-nginx-worker-8
+**nginx-worker-8**
 
 ```
-➜  servers wrk -t6 -c400 -d30s http://localhost:8000/
+➜  wrk -t6 -c400 -d30s http://localhost:8000/
 Running 30s test @ http://localhost:8000/
   6 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -88,10 +120,10 @@ Requests/sec:   1320.39
 Transfer/sec:      4.74MB
 ```
 
-node
+**node-without-jit**
 
 ```
-➜  servers wrk -t6 -c400 -d30s http://localhost:3000/
+➜  wrk -t6 -c400 -d30s http://localhost:3000/
 Running 30s test @ http://localhost:3000/
   6 threads and 400 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
@@ -101,4 +133,19 @@ Running 30s test @ http://localhost:3000/
   Socket errors: connect 150, read 208, write 0, timeout 0
 Requests/sec:    834.82
 Transfer/sec:      2.98MB
+```
+
+**node-jit**
+
+```
+➜  wrk -t6 -c400 -d30s http://localhost:3000/
+Running 30s test @ http://localhost:3000/
+  6 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    76.47ms    6.04ms 201.04ms   80.41%
+    Req/Sec   533.04     85.73   750.00     62.39%
+  95622 requests in 30.05s, 341.33MB read
+  Socket errors: connect 150, read 148, write 0, timeout 0
+Requests/sec:   3182.21
+Transfer/sec:     11.36MB
 ```

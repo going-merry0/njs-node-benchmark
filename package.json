@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "start": "node --jitless ./src/server.js"
+    "start": "node --jitless ./src/server.js",
+    "start:hello": "node --jitless ./src/server.hello.js",
+    "start:hello:jit": "node ./src/server.hello.js"
   },
   "keywords": [],
   "author": "",
