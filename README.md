@@ -11,6 +11,18 @@ src
 └── server.js               node-koa ssr server
 ```
 
+## 环境
+
+```
+OS: Mac OS X 10.15.6
+CPU: Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+Memory: 16 GB
+
+# install nginx-with-njs via https://github.com/denji/homebrew-nginx
+brew tap denji/nginx
+brew install nginx-full --with-njs-module
+```
+
 ## 测试指令
 
 ```bash
